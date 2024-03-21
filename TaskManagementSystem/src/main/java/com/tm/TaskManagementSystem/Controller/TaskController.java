@@ -1,10 +1,13 @@
 package com.tm.TaskManagementSystem.Controller;
 
 import com.tm.TaskManagementSystem.Models.Task;
+import com.tm.TaskManagementSystem.Repository.TaskRepository;
 import com.tm.TaskManagementSystem.Requests.AddTaskRequest;
 import com.tm.TaskManagementSystem.Requests.TaskUpdateRequest;
 import com.tm.TaskManagementSystem.exceptions.TaskNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ import java.util.Optional;
 public class TaskController {
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private TaskRepository taskRepository;
 
     @GetMapping("/all")
     public ResponseEntity<List<Task>> getAllTasks(){
@@ -35,7 +40,16 @@ public class TaskController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @GetMapping("/getTaskList")
+    public ResponseEntity<Page<Task>> getList(@RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) throws Exception {
+        try {
+            Page<Task> customerPage = taskRepository.findAll(PageRequest.of(page, size));
+            return ResponseEntity.ok(customerPage);
+        } catch (Exception e) {
+            throw new Exception("Internal Server Issue");
+        }
+    }
     @PostMapping("/add")
     public ResponseEntity<Task> addTask(@RequestBody AddTaskRequest addTaskRequest){
         Task addedTask = taskService.addTask(addTaskRequest);

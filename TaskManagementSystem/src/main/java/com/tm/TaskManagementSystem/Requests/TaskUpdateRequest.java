@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @Data
 public class TaskUpdateRequest {
-   // private Integer id;
     private String title;
     private String description;
     private LocalDate dueDate;
